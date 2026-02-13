@@ -67,6 +67,7 @@ st.markdown(f"""
         JEFF BEZOS: <span style="color:#ff3232;">▼ {data['Jeff Bezos']['price']:.2f}$</span> || 
         BERNARD ARNAULT: <span style="color:#00ff00;">▲ {data['Bernard Arnault']['price']:.2f}€</span> || 
         CZ BINANCE: <span style="color:#00ff00;">▲ {data['CZ Binance']['price']:.2f}$</span> ||
+        MARK ZUCKERBERG: <span style="color:#00ff00;">▲ {data['Mark Zuckerberg']['price']:.2f}$</span> ||
         WHALEPULSE AI CONNECTED...
     </div>
     """, unsafe_allow_html=True)
