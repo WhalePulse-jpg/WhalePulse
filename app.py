@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import random
 
+# --- CONFIGURATION ---
 st.set_page_config(page_title="WhalePulse AI | Elite Access", layout="wide")
 
 # --- CSS PRO (LOOK 0.1%) ---
@@ -16,12 +17,13 @@ st.markdown("""
     @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 209, 255, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(0, 209, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 209, 255, 0); } }
     .wallet-btn { border: 1px solid #00d1ff; padding: 6px 20px; border-radius: 25px; color: #00d1ff; font-size: 11px; font-weight: bold; animation: pulse-blue 2s infinite; background: transparent; }
     .hero-title { font-size: 80px !important; font-weight: 900; line-height: 0.85; text-shadow: 0 0 30px rgba(0, 209, 255, 0.4); }
-    .alert-card { background: linear-gradient(180deg, rgba(255, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.9) 100%); border: 1px solid rgba(255, 50, 50, 0.4); border-radius: 18px; padding: 25px; text-align: center; }
+    .alert-card { background: linear-gradient(180deg, rgba(255, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.9) 100%); border: 1px solid rgba(255, 50, 50, 0.4); border-radius: 18px; padding: 20px; text-align: center; }
     .ticker-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; border-top: 1px solid #00d1ff; padding: 15px; color: #00d1ff; font-family: monospace; z-index: 1000; font-size: 14px; }
+    .stSelectbox div[data-baseweb="select"] { background-color: rgba(255,255,255,0.05) !important; color: white !important; border: 1px solid #444 !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- MOTEUR DE DONNÉES ---
+# --- FONCTIONS DE DONNÉES ---
 @st.cache_data(ttl=2)
 def get_wealth():
     targets = {
@@ -45,45 +47,58 @@ def get_wealth():
     return results
 
 @st.cache_data(ttl=60)
-def get_crypto_history(ticker="BTC-USD"):
+def get_crypto_history(ticker):
     try:
         df = yf.download(ticker, period="1d", interval="15m", progress=False)
         return df['Close']
     except:
         return pd.DataFrame(np.random.randn(20, 1))
 
+# --- APP LOGIC ---
 data = get_wealth()
-btc_price_history = get_crypto_history()
-alerts = ["BTC VOLATILITY DETECTED", "ELON MUSK SENTIMENT: STABLE", "UNUSUAL WHALE ACTIVITY"]
-current_alert = random.choice(alerts)
 
-# --- NAVIGATION ---
-st.markdown(f'<div class="nav-container"><div style="font-weight: 900; color: #00d1ff; font-size: 22px;">📈 WhalePulse.ai</div><div class="wallet-btn">CONNECT WALLET</div></div>', unsafe_allow_html=True)
+st.markdown(f'''
+    <div class="nav-container">
+        <div style="font-weight: 900; color: #00d1ff; font-size: 22px;">📈 WhalePulse.ai</div>
+        <div class="wallet-btn">CONNECT WALLET</div>
+    </div>
+    ''', unsafe_allow_html=True)
 
 col_left, col_mid, col_right = st.columns([1.6, 2, 1.2])
 
 with col_left:
     st.markdown('<p class="hero-title">FEEL THE<br>RHYTHM OF<br>THE 0.1%.</p>', unsafe_allow_html=True)
-    st.write("Real-time Billionaire Wealth Tracking with AI Sentiment.")
+    st.write("Professional Whale Tracking with AI Sentiment Analysis.")
 
 with col_mid:
     st.image("https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop", use_container_width=True)
 
 with col_right:
-    st.markdown(f'<div class="alert-card"><p style="color:#ff3232; font-size:12px; font-weight:bold;">● AI PULSE ALERT</p><p style="font-size:11px; color:white;">{current_alert}</p>', unsafe_allow_html=True)
-    st.line_chart(btc_price_history, height=120, use_container_width=True)
-    st.image("https://upload.wikimedia.org/wikipedia/commons/e/ed/Elon_Musk_Royal_Society.jpg", width=150)
-    sentiment_color = "#00ff00" if "BULLISH" in data['Elon Musk']['sentiment'] else "#ff3232"
-    st.markdown(f'<p style="font-size:12px; margin-bottom:0px;">SENTIMENT: <span style="color:{sentiment_color}; font-weight:bold;">{data["Elon Musk"]["sentiment"]}</span></p>', unsafe_allow_html=True)
+    st.markdown('<div class="alert-card">', unsafe_allow_html=True)
+    st.markdown('<p style="color:#ff3232; font-size:12px; font-weight:bold;">● MARKET TERMINAL</p>', unsafe_allow_html=True)
+    
+    # Sélecteur Crypto
+    crypto_choice = st.selectbox("CHOOSE ASSET:", ["BTC-USD", "ETH-USD", "SOL-USD"], label_visibility="collapsed")
+    history = get_crypto_history(crypto_choice)
+    st.line_chart(history, height=130, use_container_width=True)
+    
+    # Shark Mode Button
+    if st.button("🚨 ACTIVATE SHARK MODE", use_container_width=True):
+        st.toast("⚠️ SHARK ALERT: Unusual movement detected on " + crypto_choice, icon="🦈")
+        st.balloons()
+
+    st.markdown('<hr style="border: 0.1px solid rgba(255,255,255,0.1);">', unsafe_allow_html=True)
+    st.image("https://upload.wikimedia.org/wikipedia/commons/e/ed/Elon_Musk_Royal_Society.jpg", width=120)
+    s_color = "#00ff00" if "BULLISH" in data['Elon Musk']['sentiment'] else "#ff3232"
+    st.markdown(f'<p style="font-size:11px; margin-bottom:0px;">AI SENTIMENT: <span style="color:{s_color}; font-weight:bold;">{data["Elon Musk"]["sentiment"]}</span></p>', unsafe_allow_html=True)
     st.metric("ELON MUSK", f"{data['Elon Musk']['total']:,.0f} $", "-$3.2B", delta_color="inverse")
-    st.button("ENTER THE TERMINAL", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- TICKER DYNAMIQUE ---
+# Ticker Bar
 ticker_html = '<div class="ticker-bar">'
 for name, info in data.items():
-    color = "#00ff00" if "BULLISH" in info['sentiment'] else "#ff3232"
-    ticker_html += f' || {name.upper()}: {info["price"]:.2f}$ <span style="color:{color}; font-size:10px;">[{info["sentiment"]}]</span>'
+    c = "#00ff00" if "BULLISH" in info['sentiment'] else "#ff3232"
+    ticker_html += f' || {name.upper()}: {info["price"]:.2f}$ <span style="color:{c}; font-size:10px;">[{info["sentiment"]}]</span>'
 ticker_html += ' || WHALEPULSE AI CONNECTED...</div>'
 st.markdown(ticker_html, unsafe_allow_html=True)
 
